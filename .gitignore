@@ -1,0 +1,7 @@
+# Project exclude paths
+/.gradle/
+/adapters/build/
+/game_logic/build/
+/game_logic/build/classes/kotlin/main/
+/server_builder/build/
+/server_builder/build/classes/kotlin/main/

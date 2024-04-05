@@ -1,0 +1,14 @@
+plugins {
+//  id("io.ktor.plugin") version "2.3.8"
+  id 'org.gradle.toolchains.foojay-resolver-convention' version '0.5.0'
+}
+include 'server_builder'
+include 'game_logic'
+include 'adapters'
+include 'adapters:storage'
+findProject(':adapters:storage')?.name = 'storage'
+include 'adapters:rest-api'
+findProject(':adapters:rest-api')?.name = 'rest-api'
+include 'adapters:mapper'
+findProject(':adapters:mapper')?.name = 'mapper'
+

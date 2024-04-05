@@ -1,0 +1,12 @@
+ktor:
+
+  deployment:
+    port: 8080
+    host: 0.0.0.0
+
+  application:
+    modules:
+      - com.server.ApplicationKt.module
+
+secretKey:
+  "$secretKey:o0c04SBDP/9MPP5cDV0KiFvMx/sPkvyIZ4bBMod4OoQ="
