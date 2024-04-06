@@ -4,14 +4,14 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.util.pipeline.*
 
 fun main() {
     System.setProperty("io.ktor.development", "true")
+    val server = GRpcServer()
+    server.start()
     embeddedServer(Netty, port = 8080) {
         module()
     }.start(wait = true)
-    GRpcServer().start()
 }
 
 lateinit var str: String

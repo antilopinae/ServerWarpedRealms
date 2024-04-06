@@ -18,6 +18,7 @@ application {
 
 dependencies {
     implementation(project(":adapters"))
+    implementation(project(":adapters:mapper"))
     implementation(project(":game_logic"))
 
     api("org.jetbrains.kotlinx:kotlinx-coroutines-core:${kotlinxCoroutinesVersion}")
