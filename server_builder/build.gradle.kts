@@ -1,10 +1,6 @@
 val ktorVersion: String by project
 val kotlinxCoroutinesVersion: String by project
 val kotlinVersion: String by project
-val logbackVersion: String by project
-val exposedVersion: String by project
-val versionGdx: String by project
-val ktxVersion: String by project
 val slf4j_version: String by project
 
 //plugins{
