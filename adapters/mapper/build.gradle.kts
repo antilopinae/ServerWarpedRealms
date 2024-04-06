@@ -13,10 +13,6 @@ repositories {
     mavenCentral()
 }
 
-//plugins {
-//    id("com.google.protobuf") version "0.8.13"
-//}
-
 dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test")
 
@@ -62,6 +58,7 @@ protobuf {
         }
     }
 }
+
 tasks.test {
     useJUnitPlatform()
 }

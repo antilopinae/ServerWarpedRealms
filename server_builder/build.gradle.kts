@@ -17,6 +17,9 @@ application {
 }
 
 dependencies {
+    implementation(project(":adapters"))
+    implementation(project(":game_logic"))
+
     api("org.jetbrains.kotlinx:kotlinx-coroutines-core:${kotlinxCoroutinesVersion}")
 
     //core
@@ -33,7 +36,4 @@ dependencies {
     //test
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktorVersion")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion")
-
-    implementation(project(":adapters"))
-    implementation(project(":game_logic"))
 }

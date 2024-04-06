@@ -1,3 +1,4 @@
+import adapters.mapper.grpc.server.GRpcServer
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
@@ -10,6 +11,7 @@ fun main() {
     embeddedServer(Netty, port = 8080) {
         module()
     }.start(wait = true)
+    GRpcServer().start()
 }
 
 lateinit var str: String
