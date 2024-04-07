@@ -11,11 +11,14 @@ class GreetingServiceImpl: GreetingServiceGrpc.GreetingServiceImplBase() {
     ) {
         //super.greeting(request, responseObserver)
         println(request)
-        val response = GreetingServiceOuterClass.
-        HelloResponse.newBuilder()
-            .setGreeting("Hello from server ${request.name}!")
-            .build()
-        responseObserver.onNext(response)
+        for(i in 0..1000){
+            Thread.sleep(100)
+            val response = GreetingServiceOuterClass.
+            HelloResponse.newBuilder()
+                .setGreeting("Hello from server ${request.name}!")
+                .build()
+            responseObserver.onNext(response)
+        }
         responseObserver.onCompleted()
     }
 }

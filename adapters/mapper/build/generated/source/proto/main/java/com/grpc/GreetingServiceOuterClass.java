@@ -1279,10 +1279,10 @@ public final class GreetingServiceOuterClass {
     java.lang.String[] descriptorData = {
       "\n\025GreetingService.proto\022\010com.grpc\"-\n\014Hel" +
       "loRequest\022\014\n\004name\030\001 \001(\t\022\017\n\007hobbies\030\002 \003(\t" +
-      "\"!\n\rHelloResponse\022\020\n\010greeting\030\001 \001(\t2N\n\017G" +
-      "reetingService\022;\n\010greeting\022\026.com.grpc.He" +
-      "lloRequest\032\027.com.grpc.HelloResponseb\006pro" +
-      "to3"
+      "\"!\n\rHelloResponse\022\020\n\010greeting\030\001 \001(\t2P\n\017G" +
+      "reetingService\022=\n\010greeting\022\026.com.grpc.He" +
+      "lloRequest\032\027.com.grpc.HelloResponse0\001b\006p" +
+      "roto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
