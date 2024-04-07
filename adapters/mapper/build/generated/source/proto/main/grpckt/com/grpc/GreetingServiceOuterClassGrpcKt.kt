@@ -13,8 +13,8 @@ import io.grpc.Status.UNIMPLEMENTED
 import io.grpc.StatusException
 import io.grpc.kotlin.AbstractCoroutineServerImpl
 import io.grpc.kotlin.AbstractCoroutineStub
-import io.grpc.kotlin.ClientCalls.serverStreamingRpc
-import io.grpc.kotlin.ServerCalls.serverStreamingServerMethodDefinition
+import io.grpc.kotlin.ClientCalls.bidiStreamingRpc
+import io.grpc.kotlin.ServerCalls.bidiStreamingServerMethodDefinition
 import io.grpc.kotlin.StubFor
 import kotlin.String
 import kotlin.coroutines.CoroutineContext
@@ -33,8 +33,7 @@ public object GreetingServiceGrpcKt {
   public val serviceDescriptor: ServiceDescriptor
     get() = getServiceDescriptor()
 
-  public val greetingMethod:
-      MethodDescriptor<GreetingServiceOuterClass.HelloRequest, GreetingServiceOuterClass.HelloResponse>
+  public val greetingMethod: MethodDescriptor<HelloRequest, HelloResponse>
     @JvmStatic
     get() = GreetingServiceGrpc.getGreetingMethod()
 
@@ -56,17 +55,24 @@ public object GreetingServiceGrpcKt {
      * collecting the flow downstream fails exceptionally (including via cancellation), the RPC
      * is cancelled with that exception as a cause.
      *
-     * @param request The request message to send to the server.
+     * The [Flow] of requests is collected once each time the [Flow] of responses is
+     * collected. If collection of the [Flow] of responses completes normally or
+     * exceptionally before collection of `requests` completes, the collection of
+     * `requests` is cancelled.  If the collection of `requests` completes
+     * exceptionally for any other reason, then the collection of the [Flow] of responses
+     * completes exceptionally for the same reason and the RPC is cancelled with that reason.
+     *
+     * @param requests A [Flow] of request messages.
      *
      * @param headers Metadata to attach to the request.  Most users will not need this.
      *
      * @return A flow that, when collected, emits the responses from the server.
      */
-    public fun greeting(request: GreetingServiceOuterClass.HelloRequest, headers: Metadata =
-        Metadata()): Flow<GreetingServiceOuterClass.HelloResponse> = serverStreamingRpc(
+    public fun greeting(requests: Flow<HelloRequest>, headers: Metadata = Metadata()):
+        Flow<HelloResponse> = bidiStreamingRpc(
       channel,
       GreetingServiceGrpc.getGreetingMethod(),
-      request,
+      requests,
       callOptions,
       headers
     )
@@ -88,14 +94,16 @@ public object GreetingServiceGrpcKt {
      * or collecting the returned flow fails for any other reason, the RPC will fail with
      * `Status.UNKNOWN` with the exception as a cause.
      *
-     * @param request The request from the client.
+     * @param requests A [Flow] of requests from the client.  This flow can be
+     *        collected only once and throws [java.lang.IllegalStateException] on attempts to
+     * collect
+     *        it more than once.
      */
-    public open fun greeting(request: GreetingServiceOuterClass.HelloRequest):
-        Flow<GreetingServiceOuterClass.HelloResponse> = throw
+    public open fun greeting(requests: Flow<HelloRequest>): Flow<HelloResponse> = throw
         StatusException(UNIMPLEMENTED.withDescription("Method com.grpc.GreetingService.greeting is unimplemented"))
 
     final override fun bindService(): ServerServiceDefinition = builder(getServiceDescriptor())
-      .addMethod(serverStreamingServerMethodDefinition(
+      .addMethod(bidiStreamingServerMethodDefinition(
       context = this.context,
       descriptor = GreetingServiceGrpc.getGreetingMethod(),
       implementation = ::greeting
