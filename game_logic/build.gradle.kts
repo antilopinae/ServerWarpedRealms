@@ -2,11 +2,30 @@ val ktxVersion: String by project
 val kotlinxCoroutinesVersion: String by project
 val gdxVersion: String by project
 val kotlinVersion: String by project
+val gdxControllersVersion: String by project
+
+plugins {
+    id("com.google.devtools.ksp").version("1.9.22-1.0.16")
+}
 
 dependencies {
+    implementation(project(":adapters:grpc"))
+    implementation(project(":adapters"))
+
+    implementation(project(":annotation"))
+    implementation(project(":processor"))
+
+    ksp(project(":processor"))
+    kspTest(project(":processor"))
+
+    implementation("com.badlogicgames.gdx-controllers:gdx-controllers-desktop:$gdxControllersVersion")
+    implementation("com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion")
+    implementation("com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop")
+    implementation("com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop")
+
     testImplementation("org.jetbrains.kotlin:kotlin-test")
-    api("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion")
 
     //bad logic
     implementation("com.badlogicgames.gdx:gdx:$gdxVersion")

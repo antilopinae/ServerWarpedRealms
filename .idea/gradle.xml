@@ -9,10 +9,12 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/adapters" />
-            <option value="$PROJECT_DIR$/adapters/mapper" />
+            <option value="$PROJECT_DIR$/adapters/grpc" />
             <option value="$PROJECT_DIR$/adapters/rest-api" />
             <option value="$PROJECT_DIR$/adapters/storage" />
+            <option value="$PROJECT_DIR$/annotation" />
             <option value="$PROJECT_DIR$/game_logic" />
+            <option value="$PROJECT_DIR$/processor" />
             <option value="$PROJECT_DIR$/server_builder" />
           </set>
         </option>

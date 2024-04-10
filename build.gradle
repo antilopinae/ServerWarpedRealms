@@ -3,6 +3,7 @@ buildscript {
     maven { url 'https://maven.pkg.jetbrains.space/public/p/ktor/eap' }
     mavenCentral()
     maven { url 'https://s01.oss.sonatype.org' }
+    maven{ url 'https://mvnrepository.com/artifact/io.ktor/ktor-bom'}
     mavenLocal()
     google()
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
@@ -11,23 +12,134 @@ buildscript {
   dependencies {
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
     classpath "com.google.protobuf:protobuf-gradle-plugin:$protobufPluginVersion"
+
+    if (JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_14)) {
+      classpath "org.beryx:badass-runtime-plugin:1.13.0"
+    }
+    if(enableGraalNative == 'true') {
+      classpath "org.graalvm.buildtools.native:org.graalvm.buildtools.native.gradle.plugin:0.9.28"
+    }
   }
 }
 
 plugins {
-  id("io.ktor.plugin") version "2.3.8"
+  id("io.ktor.plugin") version "2.3.9"
   id("com.google.protobuf") version "0.9.4"
 }
+
+if (JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_14)) {
+  apply plugin: 'org.beryx.runtime'
+}
+else {
+  apply plugin: 'application'
+}
+
+apply plugin: 'io.ktor.plugin'
 
 allprojects {
   apply plugin: 'eclipse'
   apply plugin: 'idea'
   apply plugin: 'io.ktor.plugin'
   apply plugin: 'com.google.protobuf'
+
+  version = '1.0.0'
+  ext.appName = 'WarpedRealmsLootLabyrinth'
 }
 
 application {
   mainClass.set("io.ktor.server.netty.EngineMain")
+}
+
+sourceSets.main.resources.srcDirs += [ rootProject.file('assets').path ]
+eclipse.project.name = appName + '-server'
+
+java.sourceCompatibility = 17
+java.targetCompatibility = 17
+
+sourceSets.main {
+  java.srcDirs("build/generated/ksp/main/kotlin")
+}
+
+def jarName = "${appName}-${version}.jar"
+def os = System.properties['os.name'].toLowerCase()
+
+run {
+  workingDir = rootProject.file('assets').path
+  setIgnoreExitValue(true)
+
+  // This next line could be needed to run LWJGL3 Java apps on macOS, but StartupHelper should make it unnecessary.
+  //if (os.contains('mac')) jvmArgs += "-XstartOnFirstThread"
+  // If you encounter issues with the 'lwjgl3:run' task on macOS specifically, try uncommenting the above line, and
+  // regardless, please report it via the gdx-liftoff issue tracker or just mention it on the libGDX Discord.
+}
+
+//jar {
+//// sets the name of the .jar file this produces to the name of the game or app.
+//  archiveFileName.set(jarName)
+//// using 'lib' instead of the default 'libs' appears to be needed by jpackageimage.
+//  destinationDirectory = file("${project.layout.buildDirectory.asFile.get().absolutePath}/lib")
+//// the duplicatesStrategy matters starting in Gradle 7.0; this setting works.
+//  duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
+//  dependsOn configurations.runtimeClasspath
+//  from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+//// these "exclude" lines remove some unnecessary duplicate files in the output JAR.
+//  exclude('META-INF/INDEX.LIST', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
+//  dependencies {
+//    exclude('META-INF/INDEX.LIST', 'META-INF/maven/**')
+//  }
+//// setting the manifest makes the JAR runnable.
+//  manifest {
+//    attributes 'Main-Class': project.mainClassName
+//  }
+//// this last step may help on some OSes that need extra instruction to make runnable JARs.
+//  doLast {
+//    file(archiveFile).setExecutable(true, false)
+//  }
+//}
+
+if (JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_14)) {
+  tasks.jpackageImage.doNotTrackState("This task both reads from and writes to the build folder.")
+  runtime {
+    options.set(['--strip-debug',
+                 '--compress', '2',
+                 '--no-header-files',
+                 '--no-man-pages',
+                 '--strip-native-commands',
+                 '--vm', 'server'])
+// you could very easily need more modules than this one.
+// use the lwjgl3:suggestModules task to see which modules may be needed.
+    modules.set([
+      'jdk.unsupported'
+    ])
+    distDir.set(file(project.layout.buildDirectory))
+    jpackage {
+      imageName = appName
+// you can set this to false if you want to build an installer, or keep it as true to build just an app.
+      skipInstaller = true
+// this may need to be set to a different path if your JAVA_HOME points to a low JDK version.
+      jpackageHome = javaHome.getOrElse("")
+      mainJar = jarName
+      if (os.contains('win')) {
+        imageOptions = ["--icon", "icons/logo.ico"]
+      } else if (os.contains('nix') || os.contains('nux') || os.contains('bsd')) {
+        imageOptions = ["--icon", "icons/logo.png"]
+      } else if (os.contains('mac')) {
+// If you are making a jpackage image on macOS, the below line should work thanks to StartupHelper.
+        imageOptions = ["--icon", "icons/logo.icns"]
+// If the above line doesn't produce a runnable executable, you can try using the below line instead of the above one.
+//        imageOptions = ["--icon", "icons/logo.icns", "--java-options", "\"-XstartOnFirstThread\""]
+      }
+    }
+  }
+}
+
+// Equivalent to the jar task; here for compatibility with gdx-setup.
+tasks.register('dist') {
+  dependsOn['jar']
+}
+
+if(enableGraalNative == 'true') {
+  apply from: file("nativeimage.gradle")
 }
 
 configure(subprojects) {
@@ -65,6 +177,7 @@ subprojects {
   version = '1.0.0'
   ext.appName = 'ServerWarpedRealms'
   repositories {
+    maven{ url 'https://mvnrepository.com/artifact/io.ktor/ktor-bom'}
     maven { url 'https://maven.pkg.jetbrains.space/public/p/ktor/eap' }
     mavenCentral()
     maven { url 'https://s01.oss.sonatype.org' }
@@ -107,12 +220,16 @@ subprojects {
   }
 }
 
-//eclipse.project.name = 'ServerWarpedRealms' + '-parent'
+eclipse.project.name = 'ServerWarpedRealms' + '-parent'
+
 ktor {
   fatJar {
     archiveFileName.set("fat.jar")
   }
-
+  repositories {
+    mavenCentral()
+    maven{ url 'https://mvnrepository.com/artifact/io.ktor/ktor-bom'}
+  }
 //  docker {
 //    jreVersion.set(JavaVersion.VERSION_17)
 //    localImageName.set("sample-docker-image")

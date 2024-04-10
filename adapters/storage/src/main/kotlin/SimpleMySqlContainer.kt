@@ -1,5 +1,4 @@
 
-import jdk.internal.vm.ThreadContainers.container
 
 class SimpleMySqlContainer {
     fun start() {
