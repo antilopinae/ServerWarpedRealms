@@ -7,11 +7,16 @@ import warped.realms.component.MoveComponent
 import warped.realms.component.PhysicComponent
 import System
 import Update
+import generated.systems.Factories
+import generated.systems.Systems
 
 @System
 @Update(2)
 @PutComponent(PhysicComponent::class, MoveComponent::class)
-class MoveSystem {
+class MoveSystem(
+    val systems: Systems,
+    val factories: Factories
+) {
     private val moveCmps: MutableMap<MoveComponent, PhysicComponent> = mutableMapOf()
 
     fun PutComponent(physCmp: PhysicComponent, moveCmp: MoveComponent) {

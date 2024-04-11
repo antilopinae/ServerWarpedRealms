@@ -1,6 +1,5 @@
 package warped.realms.component.mapper
 
-import adapters.grpc.client.dao.Position
 import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.BodyDef
 import com.badlogic.gdx.physics.box2d.World
@@ -23,8 +22,8 @@ class PhysicMapper (
 
     companion object {
         const val SIZE_ARRAY = 2
-       fun PhysicComponent.dismap(p: Position) {
-           this.body!!.setTransform(p.position_x.toFloat(), p.position_y.toFloat(), this.body!!.angle)
+       fun PhysicComponent.dismap() {
+//           this.body!!.setTransform(p.position_x.toFloat(), p.position_y.toFloat(), this.body!!.angle)
        }
     }
 }

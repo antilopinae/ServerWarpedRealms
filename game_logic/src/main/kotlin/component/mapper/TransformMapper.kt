@@ -1,6 +1,5 @@
 package warped.realms.component.mapper
 
-import adapters.grpc.client.dao.Position
 import ktx.math.vec2
 import warped.realms.component.TransformComponent
 
@@ -21,7 +20,7 @@ class TransformMapper(
 //            return p
 //        }
 
-        fun TransformComponent.dismap(p: Position) {
+        fun TransformComponent.dismap() {
 //            this.location = vec2(p.position_x.toFloat(), p.position_y.toFloat())
 //            this.location = vec2(500f, 200f)
         }

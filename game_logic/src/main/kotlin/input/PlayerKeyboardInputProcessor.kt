@@ -6,11 +6,16 @@ import ktx.app.KtxInputAdapter
 import ktx.log.logger
 import warped.realms.component.MoveComponent
 import System
+import generated.systems.Factories
+import generated.systems.Systems
 import generated.systems.injectSys
 import warped.realms.system.update.mapper.ServerMapperSystem
 
 @System
-class PlayerKeyboardInputProcessor : KtxInputAdapter {
+class PlayerKeyboardInputProcessor(
+    val systeems: Systems,
+    val factories: Factories
+) : KtxInputAdapter {
     private val moveCmps: MutableList<MoveComponent> = mutableListOf()
 
     private var playerCos: Float = 0f

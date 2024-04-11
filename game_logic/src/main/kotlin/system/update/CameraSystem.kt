@@ -10,10 +10,15 @@ import warped.realms.event.IHandleEvent
 import warped.realms.event.MapChangeEvent
 import System
 import Update
+import generated.systems.Factories
+import generated.systems.Systems
 
 @System
 @Update(1)
-class CameraSystem : IHandleEvent {
+class CameraSystem(
+    val systems: Systems,
+    val factories: Factories
+) : IHandleEvent {
     private val camera: Camera = RenderSystem.stage.camera
     private val imageCmps: MutableList<ImageComponent> = mutableListOf()
 

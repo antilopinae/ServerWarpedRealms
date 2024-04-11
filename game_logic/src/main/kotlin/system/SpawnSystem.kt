@@ -11,15 +11,17 @@ import ktx.tiled.x
 import ktx.tiled.y
 import warped.realms.component.*
 import warped.realms.entity.Entity
-import warped.realms.screen.Screen.Companion.UNIT_SCALE
 import System
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType
 import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.utils.Scaling
+import generated.systems.Factories
+import generated.systems.Systems
 import generated.systems.injectSys
 import ktx.box2d.BodyDefinition
 import ktx.box2d.body
+import server_logic.server.ServerGameLogic.Companion.UNIT_SCALE
 import warped.realms.entity.GameEntity
 import warped.realms.entity.mapper.EntityMapper
 import warped.realms.event.*
@@ -33,7 +35,10 @@ import warped.realms.system.update.mapper.ServerMapperSystem
 const val entityLayer = "entities"
 
 @System
-class SpawnSystem : IHandleEvent {
+class SpawnSystem(
+    val systems: Systems,
+    val factories: Factories
+) : IHandleEvent {
     private val textureAtlas: TextureAtlas = RenderSystem.textureAtlas
     private val phWorld: World = PhysicSystem.phWorld
 
@@ -52,8 +57,8 @@ class SpawnSystem : IHandleEvent {
         ).apply {
             input(this)
         }.also {
-            injectSys<ServerMapperSystem>().PutComponent(EntityMapper(it))
-            injectSys<ServerDismapperSystem>().PutComponent(EntityMapper(it))
+            injectSys<ServerMapperSystem>(systems).PutComponent(EntityMapper(it))
+            injectSys<ServerDismapperSystem>(systems).PutComponent(EntityMapper(it))
 
             Logger.debug { "Player has spawned with size: ${size(AnimationModel.FANTAZY_WARRIOR)}!" }
         }
@@ -113,8 +118,8 @@ class SpawnSystem : IHandleEvent {
         vec2(firstFrame.originalWidth * UNIT_SCALE, firstFrame.originalHeight * UNIT_SCALE)
     }
     private fun input(gameEntity: GameEntity) {
-        injectSys<PlayerKeyboardInputProcessor>().addMoveCmp(gameEntity.getCmp<MoveComponent>())
-        injectSys<CameraSystem>().addTrecker(gameEntity.getCmp<ImageComponent>())
+        injectSys<PlayerKeyboardInputProcessor>(systems).addMoveCmp(gameEntity.getCmp<MoveComponent>())
+        injectSys<CameraSystem>(systems).addTrecker(gameEntity.getCmp<ImageComponent>())
     }
 
     private fun createEntity(
@@ -194,7 +199,9 @@ class SpawnSystem : IHandleEvent {
             trCmp,
             physCmp,
             mvCmp,
-            clCmp
+            clCmp,
+            systems,
+            factories
         )
     }
 

@@ -1,5 +1,7 @@
 package warped.realms.entity
 
+import generated.systems.Factories
+import generated.systems.Systems
 import generated.systems.initEntity
 import warped.realms.component.*
 
@@ -9,8 +11,10 @@ class GameEntity(
     trCmp: TransformComponent.() -> TransformComponent,
     phCmp: PhysicComponent.() -> PhysicComponent,
     mvCmp: MoveComponent.() -> MoveComponent,
-    tileCmp: (TiledComponent.() -> TiledComponent)?
-) : Entity() {
+    tileCmp: (TiledComponent.() -> TiledComponent)?,
+    val systems: Systems,
+    factories: Factories
+) : Entity(factories) {
     init {
         addCmp<AnimationComponent>(anCmp)
         addCmp<ImageComponent>(imCmp)
@@ -20,11 +24,11 @@ class GameEntity(
         if (tileCmp != null) {
             addCmp<TiledComponent>(tileCmp)
         }
-        initEntity()
+        initEntity(factories, systems)
     }
 
     fun addCollisionComponent(lambda: TiledComponent.() -> TiledComponent) {
         addCmp<TiledComponent>(lambda)
-        initEntity()
+        initEntity(factories, systems)
     }
 }

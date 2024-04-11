@@ -9,6 +9,8 @@ import warped.realms.component.PhysicComponent
 import System
 import Update
 import com.badlogic.gdx.physics.box2d.*
+import generated.systems.Factories
+import generated.systems.Systems
 import ktx.box2d.createWorld
 import ktx.math.vec2
 import warped.realms.component.TiledComponent
@@ -18,7 +20,10 @@ import warped.realms.system.error
 @System
 @Update(10)
 @PutComponent(PhysicComponent::class, ImageComponent::class)
-class PhysicSystem : ContactListener {
+class PhysicSystem(
+    val systems: Systems,
+    val factories: Factories
+) : ContactListener {
     private val physCmps: MutableMap<PhysicComponent, ImageComponent> = mutableMapOf()
     private val tiledCmps = mutableMapOf<PhysicComponent, TiledComponent>()
 

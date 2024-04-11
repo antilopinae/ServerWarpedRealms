@@ -6,10 +6,15 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import ktx.assets.disposeSafely
 import System
 import Update
+import generated.systems.Factories
+import generated.systems.Systems
 
 @System
 @Update(-1)
-class DebugSystem {
+class DebugSystem(
+    val systems: Systems,
+    val factories: Factories
+) {
     private val phWorld: World = PhysicSystem.phWorld
     private val stage: Stage = RenderSystem.stage
 

@@ -1,6 +1,4 @@
-import server_logic.ServerGameLogic
-
 class GRpcBuilder(
-    serverConnector:ServerConnector
+    val serverConnector: ServerConnector
 ){
 }

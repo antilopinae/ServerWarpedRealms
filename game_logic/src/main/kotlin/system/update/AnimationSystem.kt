@@ -12,13 +12,18 @@ import warped.realms.component.AnimationComponent.Companion.NO_ANIMATION
 import warped.realms.component.ImageComponent
 import System
 import Update
+import generated.systems.Factories
+import generated.systems.Systems
 import warped.realms.system.Logger
 import warped.realms.system.debug
 
 @System
 @Update(1)
 @PutComponent(ImageComponent::class, AnimationComponent::class)
-class AnimationSystem {
+class AnimationSystem(
+    val systems: Systems,
+    val factories: Factories
+) {
     private val textureAtlas: TextureAtlas = RenderSystem.textureAtlas
 
     private val animCmps: MutableMap<AnimationComponent, ImageComponent> = mutableMapOf()

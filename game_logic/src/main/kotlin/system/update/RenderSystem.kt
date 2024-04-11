@@ -2,33 +2,33 @@ package warped.realms.system.update
 
 import PutComponent
 import com.badlogic.gdx.graphics.OrthographicCamera
-import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
 import com.badlogic.gdx.maps.tiled.tiles.AnimatedTiledMapTile
 import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.scenes.scene2d.ui.Image
-import com.badlogic.gdx.utils.Scaling
 import ktx.assets.disposeSafely
-import ktx.graphics.use
-import ktx.log.logger
 import warped.realms.component.ImageComponent
 import warped.realms.event.Event
 import warped.realms.event.IHandleEvent
 import warped.realms.event.MapChangeEvent
-import warped.realms.screen.Screen.Companion.UNIT_SCALE
 import System
 import Update
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.utils.viewport.ExtendViewport
+import generated.systems.Factories
+import generated.systems.Systems
 import ktx.assets.toInternalFile
+import server_logic.server.ServerGameLogic.Companion.UNIT_SCALE
 import warped.realms.system.Logger
 import warped.realms.system.debug
 
 @System
 @Update(0)
 @PutComponent(ImageComponent::class)
-class RenderSystem : IHandleEvent {
+class RenderSystem(
+    val systems: Systems,
+    val factories: Factories
+) : IHandleEvent {
     ///
     private var images = mutableListOf<ImageComponent>()
 
@@ -99,11 +99,11 @@ class RenderSystem : IHandleEvent {
     }
     fun Stage.renderTileLayer(list: MutableList<TiledMapTileLayer>){
         if(list.isNotEmpty()){
-            stage.batch.use(orthoCam.combined){
-                list.forEach {
-                    mapRenderer.renderTileLayer(it)
-                }
-            }
+//            stage.batch.use(orthoCam.combined){
+//                list.forEach {
+//                    mapRenderer.renderTileLayer(it)
+//                }
+//            }
         }
     }
     companion object{

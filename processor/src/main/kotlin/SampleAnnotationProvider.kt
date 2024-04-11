@@ -227,7 +227,7 @@ class Output(
 ///
             //writer.appendLine("import ${scan_root.canonicalName}")
 
-            writer.appendLine("\nobject Factories{")
+            writer.appendLine("\nclass Factories{")
 //
             for (i in 1..processed_component_factory.size) {
                 writer.appendLine("    val factory${i} = ${processed_component_factory.toList()[i - 1].second.simpleName}()")
@@ -257,7 +257,7 @@ class Output(
 ///
             writer.appendLine("    )\n")
 //
-            writer.appendLine("    fun put(cmps: MutableMap<KClass<*>, Any>){")
+            writer.appendLine("    fun put(cmps: MutableMap<KClass<*>, Any>, systems: Systems){")
             for (i in 0..<processed_components.size) {
                 writer.appendLine("        val ${processed_components.toList()[i].simpleName}Cmps = mutableListOf<${processed_components.toList()[i].simpleName}>()")
             }
@@ -293,7 +293,7 @@ class Output(
                                 else str3 += ", " + it.simpleName + "Cmps[i]"
                             }
                         writer.appendLine("        if(${str1}) {")
-                        writer.appendLine("            val system = injectSys<${processed_component_system.toList()[i - 1].second[j - 1].simpleName}>()")
+                        writer.appendLine("            val system = injectSys<${processed_component_system.toList()[i - 1].second[j - 1].simpleName}>(systems)")
                         writer.appendLine("            val maxSize = minOf(${str2})")
                         writer.appendLine("            for(i in 0..<maxSize)")
                         writer.appendLine("                system.PutComponent(${str3})")
@@ -304,8 +304,8 @@ class Output(
             }
             writer.appendLine("    }\n")
 ///
-            writer.appendLine("    inline fun<reified T> delete(cmp: T){")
-            writer.appendLine("        injectCmpSys<T>().forEach {")
+            writer.appendLine("    inline fun<reified T> delete(cmp: T, systems: Systems, factories: Factories){")
+            writer.appendLine("        injectCmpSys<T>(factories).forEach {")
             writer.appendLine("            when(it){")
 //
             val systems3 = mutableListOf<ClassName>()
@@ -315,7 +315,7 @@ class Output(
                         writer.appendLine("                ${processed_component_system.toList()[i - 1].second[j - 1].simpleName}::class -> when(T::class){")
                         processed_component_system.filter { it.value.contains(processed_component_system.toList()[i - 1].second[j - 1]) }
                             .forEach {
-                                writer.appendLine("                    ${it.key.simpleName}::class -> injectSys<${processed_component_system.toList()[i - 1].second[j - 1].simpleName}>().DeleteComponent((cmp as ${it.key.simpleName})!!)")
+                                writer.appendLine("                    ${it.key.simpleName}::class -> injectSys<${processed_component_system.toList()[i - 1].second[j - 1].simpleName}>(systems).DeleteComponent((cmp as ${it.key.simpleName})!!)")
                             }
                         writer.appendLine("                }")
                         systems3.add(processed_component_system.toList()[i - 1].second[j - 1])
@@ -332,8 +332,8 @@ class Output(
             //writer.appendLine("public val ${scan_root.simpleName}.factories")
             //writer.appendLine("    get() = Factories\n")
 
-            writer.appendLine("inline fun <reified T> createCmp(noinline lambda: T.()-> T): T{")
-            writer.appendLine("    val factory = injectFac<T>()")
+            writer.appendLine("inline fun <reified T> createCmp(factories: Factories, noinline lambda: T.()-> T): T{")
+            writer.appendLine("    val factory = injectFac<T>(factories)")
             writer.appendLine("    val cmp = when(factory){")
 
 //
@@ -342,7 +342,7 @@ class Output(
                 writer.appendLine("            when(T::class){")
                 val components = processed_component_factory.filter { it.value == factories[i - 1] }
                 components.forEach {
-                    writer.appendLine("                ${it.key.simpleName}::class -> Factories.factory${i}.Factory(lambda as (${it.key.simpleName}.()-> ${it.key.simpleName}))")
+                    writer.appendLine("                ${it.key.simpleName}::class -> factories.factory${i}.Factory(lambda as (${it.key.simpleName}.()-> ${it.key.simpleName}))")
                 }
                 writer.appendLine("                else -> error(\"No such components for factory \${T::class}\")")
                 writer.appendLine("            }")
@@ -358,16 +358,16 @@ class Output(
             writer.appendLine("}\n")
 
 //
-            writer.appendLine("inline fun Entity.initEntity(){")
+            writer.appendLine("inline fun Entity.initEntity(factories: Factories, systems: Systems){")
             writer.appendLine("//    this.cmps.forEach { t, u ->")
             writer.appendLine("//        Factories.delete(u)")
             writer.appendLine("//    }")
-            writer.appendLine("    Factories.put(this.cmps)")
+            writer.appendLine("    factories.put(this.cmps, systems)")
             writer.appendLine("}\n")
 ///
-            writer.appendLine("inline fun <reified T> deleteCmp(cmp: T){")
-            writer.appendLine("    Factories.delete<T>(cmp as T)")
-            writer.appendLine("    val factory = injectFac<T>()")
+            writer.appendLine("inline fun <reified T> deleteCmp(cmp: T, factories: Factories, systems: Systems){")
+            writer.appendLine("    factories.delete<T>(cmp as T, systems, factories)")
+            writer.appendLine("    val factory = injectFac<T>(factories)")
             writer.appendLine("    when(factory){")
 
 //
@@ -376,7 +376,7 @@ class Output(
                 writer.appendLine("            when(T::class){")
                 val components = processed_component_factory.filter { it.value == factories[i - 1] }
                 components.forEach {
-                    writer.appendLine("                ${it.key.simpleName}::class -> Factories.factory${i}.Delete((cmp as ${it.key.simpleName})!!)")
+                    writer.appendLine("                ${it.key.simpleName}::class -> factories.factory${i}.Delete((cmp as ${it.key.simpleName})!!)")
                 }
                 writer.appendLine("                else -> error(\"No such components for factory \${T::class}\")")
                 writer.appendLine("            }")
@@ -388,15 +388,15 @@ class Output(
             writer.appendLine("}\n")
 
 
-            writer.appendLine("inline fun <reified T> injectCmpSys(): List<*> {")
+            writer.appendLine("inline fun <reified T> injectCmpSys(factories: Factories): List<*> {")
             writer.appendLine("    val cl: KClass<*> = (T::class)")
-            writer.appendLine("    val systems = Factories.components.get(cl)!!")
+            writer.appendLine("    val systems = factories.components.get(cl)!!")
             writer.appendLine("    return systems")
             writer.appendLine("}\n")
 
-            writer.appendLine("inline fun <reified T> injectFac(): Any {")
+            writer.appendLine("inline fun <reified T> injectFac(factories: Factories): Any {")
             writer.appendLine("    val cl: KClass<*> = (T::class)")
-            writer.appendLine("    val factory= Factories.factories.get(cl)!!")
+            writer.appendLine("    val factory= factories.factories.get(cl)!!")
             writer.appendLine("    return factory")
             writer.appendLine("}")
         }
@@ -411,12 +411,14 @@ class Output(
                 writer.appendLine("import ${it.canonicalName}")
             }
             //writer.appendLine("import ${scan_root.canonicalName}")
-            writer.appendLine("\nobject Systems{")
+            writer.appendLine("\nclass Systems(")
+            writer.appendLine("    factories: Factories")
+            writer.appendLine("){")
 
-            writer.appendLine("    const val size = ${processed_update.size}")
+            writer.appendLine("    val size = ${processed_update.size}")
             for (i in 0..<processed_update.size) {
                 val system = processed_update.toList()[i].first
-                writer.appendLine("    private val system${i + 1} = ${system.simpleName}() //${processed_update.toList()[i].second}")
+                writer.appendLine("    private val system${i + 1} = ${system.simpleName}(this, factories) //${processed_update.toList()[i].second}")
             }
             writer.appendLine("\n    val systems: HashMap<KClass<*>, *> = hashMapOf(")
             for (i in 0..<processed_update.size) {
@@ -426,7 +428,7 @@ class Output(
             writer.appendLine()
             for (i in 0..<processed_not_update.size) {
                 val system = processed_not_update[i]
-                writer.appendLine("        ${system.simpleName}::class to ${system.simpleName}(),")
+                writer.appendLine("        ${system.simpleName}::class to ${system.simpleName}(this, factories),")
             }
             writer.appendLine("    )")
 
@@ -444,7 +446,7 @@ class Output(
             writer.appendLine("        for(system in systems){")
             writer.appendLine("            when(system::class){")
             for (system in processed_systems) {
-                writer.appendLine("                ${system.simpleName}::class -> injectSys<${system.simpleName}>().Dispose()")
+                writer.appendLine("                ${system.simpleName}::class -> injectSys<${system.simpleName}>(this).Dispose()")
             }
             writer.appendLine("            }")
             writer.appendLine("        }")
@@ -455,9 +457,9 @@ class Output(
             //writer.appendLine("public val ${scan_root.simpleName}.systems")
             //writer.appendLine("    get() = Systems\n")
 
-            writer.appendLine("inline fun <reified T> injectSys(): T {")
+            writer.appendLine("inline fun <reified T> injectSys(systems: Systems): T {")
             writer.appendLine("    val cl: KClass<*> = (T::class)")
-            writer.appendLine("    val system = Systems.systems.get(cl)!!")
+            writer.appendLine("    val system = systems.systems.get(cl)!!")
             writer.appendLine("    return when(system){")
             writer.appendLine("        is T -> system")
             writer.appendLine("        else -> gdxError(\"Doesn't have any system:" + "\$system\")")

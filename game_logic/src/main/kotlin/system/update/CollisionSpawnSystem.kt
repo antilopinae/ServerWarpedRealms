@@ -10,6 +10,8 @@ import com.badlogic.gdx.math.Polyline
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Shape2D
 import com.badlogic.gdx.physics.box2d.BodyDef
+import generated.systems.Factories
+import generated.systems.Systems
 import generated.systems.createCmp
 import ktx.box2d.body
 import ktx.box2d.chain
@@ -20,13 +22,13 @@ import ktx.math.component1
 import ktx.math.component2
 import ktx.math.vec2
 import ktx.tiled.*
+import server_logic.server.ServerGameLogic.Companion.UNIT_SCALE
 import warped.realms.component.PhysicComponent
 import warped.realms.component.TiledComponent
 import warped.realms.event.CollisionDespawnEvent
 import warped.realms.event.Event
 import warped.realms.event.IHandleEvent
 import warped.realms.event.MapChangeEvent
-import warped.realms.screen.Screen.Companion.UNIT_SCALE
 import warped.realms.system.Logger
 import warped.realms.system.debug
 import kotlin.math.max
@@ -34,7 +36,10 @@ import kotlin.math.max
 @System
 @Update(11)
 @PutComponent(TiledComponent::class, PhysicComponent::class)
-class CollisionSpawnSystem : IHandleEvent {
+class CollisionSpawnSystem(
+    val systems: Systems,
+    val factories: Factories
+) : IHandleEvent {
     private val phWorld = PhysicSystem.phWorld
     private val tiledMapLayers = GdxArray<TiledMapTileLayer>()
     private val physicCmps = mutableMapOf<PhysicComponent, TiledComponent>()
@@ -53,7 +58,7 @@ class CollisionSpawnSystem : IHandleEvent {
                 }
                 processedCell.add(cell)
                 cell.tile.objects.forEach { mapObject ->
-                    createCmp<TiledComponent> {
+                    createCmp<TiledComponent>(factories) {
                         TiledComponent().apply {
                             this.cell = cell
                             nearbyEntities.add(tileCmp)
@@ -77,7 +82,7 @@ class CollisionSpawnSystem : IHandleEvent {
                     }
                     processedCell.add(cell)
                     cell.tile.objects.forEach { mapObject ->
-                        createCmp<TiledComponent> {
+                        createCmp<TiledComponent>(factories) {
                             TiledComponent().apply {
                                 this.cell = cell
                                 nearbyEntities.add(collCmp)
@@ -158,7 +163,7 @@ class CollisionSpawnSystem : IHandleEvent {
             is Polygon -> {
                 val x = shape.x
                 val y = shape.y
-                return createCmp<PhysicComponent> {
+                return createCmp<PhysicComponent>(factories) {
                     PhysicComponent(body = phWorld.body(BodyDef.BodyType.StaticBody) {
                         position.set(x * UNIT_SCALE, y * UNIT_SCALE)
                         shape.setPosition(0f, 0f)
@@ -171,7 +176,7 @@ class CollisionSpawnSystem : IHandleEvent {
             is Polyline -> {
                 val x = shape.x
                 val y = shape.y
-                return createCmp<PhysicComponent> {
+                return createCmp<PhysicComponent>(factories) {
                     PhysicComponent(body = phWorld.body(BodyDef.BodyType.StaticBody) {
                         position.set(x * UNIT_SCALE, y * UNIT_SCALE)
                         shape.setPosition(0f, 0f)
@@ -190,7 +195,7 @@ class CollisionSpawnSystem : IHandleEvent {
         bodyW: Float,
         bodyH: Float
     ): PhysicComponent {
-        return createCmp<PhysicComponent> {
+        return createCmp<PhysicComponent>(factories) {
             PhysicComponent(body = phWorld.body(BodyDef.BodyType.StaticBody) {
                 position.set(bodyX, bodyY)
                 fixedRotation = true
