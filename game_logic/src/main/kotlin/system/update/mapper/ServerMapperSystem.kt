@@ -3,6 +3,7 @@ package warped.realms.system.update.mapper
 import ServerConnector
 import Update
 import System
+import entity.mapper.EntityDismapper
 import generated.systems.Factories
 import generated.systems.Systems
 import warped.realms.entity.mapper.EntityMapper
@@ -16,35 +17,18 @@ class ServerMapperSystem(
     val systems: Systems,
     val factories: Factories
 ) {
+    val entitiesDismapper: MutableList<EntityDismapper> = mutableListOf()
     private val entityMappers = mutableListOf<EntityMapper>()
-    lateinit var serverConnector: ServerConnector
-
-    val byteArray0 = arrayOf((0).toByte()).toByteArray()
-    val byteArray1 = arrayOf((1).toByte()).toByteArray()
-    val byteArray2 = arrayOf((2).toByte()).toByteArray()
 
     fun Update(deltaTime: Float) {
-//        entityMappers.forEach { it.Update() }
-//        serverConnector.sendRequest(entityMappers.push())
+        entityMappers.forEach { it.Update() }
+        entitiesDismapper.addAll( entityMappers.map { it.MapEntity() })
     }
     fun PutComponent(cmp: EntityMapper) {
         entityMappers.add(cmp)
     }
-
     fun Dispose() {
         entityMappers.clear()
     }
 
-    fun Float.toByteArray() = if (this>0) byteArray2 else if(this<0) byteArray0 else byteArray1
-
-//    fun MutableList<EntityMapper>.push(): RequestMessage {
-//        val player = this.first()
-//        return RequestMessage(
-//            player.moveMapper.mapperCmp.cos.toByteArray(),
-//            player.moveMapper.mapperCmp.sin.toByteArray(),
-//            byteArray1,
-//            byteArray0,
-//            byteArray0
-//        )
-//    }
 }

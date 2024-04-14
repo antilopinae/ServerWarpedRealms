@@ -22,7 +22,6 @@ import ktx.math.component1
 import ktx.math.component2
 import ktx.math.vec2
 import ktx.tiled.*
-import server_logic.server.ServerGameLogic.Companion.UNIT_SCALE
 import warped.realms.component.PhysicComponent
 import warped.realms.component.TiledComponent
 import warped.realms.event.CollisionDespawnEvent
@@ -217,5 +216,6 @@ class CollisionSpawnSystem(
     }
     companion object {
         const val SPAWN_AREA_SIZE = 3
+        const val UNIT_SCALE = 1 / 24f
     }
 }

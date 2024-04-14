@@ -18,7 +18,6 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport
 import generated.systems.Factories
 import generated.systems.Systems
 import ktx.assets.toInternalFile
-import server_logic.server.ServerGameLogic.Companion.UNIT_SCALE
 import warped.realms.system.Logger
 import warped.realms.system.debug
 
@@ -39,16 +38,16 @@ class RenderSystem(
 
     fun Update(deltaTime: Float) {
 //      println("TIME: ${1 / deltaTime}")
-        with(stage) {
-            viewport.apply()
-            AnimatedTiledMapTile.updateAnimationBaseTime()
-            mapRenderer.setView(orthoCam)
-            //mapRenderer.render()
-            renderTileLayer(bgdLayers)
-            act(deltaTime)
-            draw()
-            renderTileLayer(fgdLayers)
-        }
+//        with(stage) {
+//            viewport.apply()
+//            AnimatedTiledMapTile.updateAnimationBaseTime()
+//            mapRenderer.setView(orthoCam)
+//            //mapRenderer.render()
+//            renderTileLayer(bgdLayers)
+//            act(deltaTime)
+//            draw()
+//            renderTileLayer(fgdLayers)
+//        }
     }
 
     fun PutComponent(component: ImageComponent) {
@@ -109,5 +108,6 @@ class RenderSystem(
     companion object{
         val textureAtlas: TextureAtlas = TextureAtlas("graphics/gameObject.atlas".toInternalFile())
         val stage: Stage = Stage(ExtendViewport(16f, 9f, 1920f, 1080f))
+        const val UNIT_SCALE = 1 / 24f
     }
 }

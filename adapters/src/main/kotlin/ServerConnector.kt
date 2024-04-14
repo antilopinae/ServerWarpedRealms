@@ -7,17 +7,14 @@ import java.util.concurrent.ConcurrentLinkedQueue
 
 
 //Подключение к серверу, передача событий.
-class ServerConnector() {
-    val grpcLayer = GRpcLayer()
+class ServerConnector(
+    val queue_response: ConcurrentLinkedQueue<ConcurrentLinkedQueue<Pair<Observer, ResponseMessage>>>,
+    val queue_request: ConcurrentLinkedQueue<ConcurrentLinkedQueue<Pair<Observer, RequestMessage>>>
+) {
+    val grpcLayer = GRpcLayer(queue_response, queue_request)
     val ktorLayer = KtorLayer()
     init {
         println("==========Server To Start==========")
-    }
-    fun sendResponse(p: ConcurrentLinkedQueue<Pair<Observer, ResponseMessage>>) {
-        grpcLayer.sendResponses(p)
-    }
-    fun getRequests():ConcurrentLinkedQueue<Pair<Observer, RequestMessage>>  {
-        return grpcLayer.getRequests()
     }
     fun dispose() {
         grpcLayer.stopConnection()

@@ -1,8 +1,15 @@
+import adapters.grpc.dao.RequestMessage
+import adapters.grpc.dao.ResponseMessage
+import adapters.grpc.server.dao.Observer
+import java.util.concurrent.ConcurrentLinkedQueue
+
 fun main() {
     System.setProperty("io.ktor.development", "true")
+    val queue_response: ConcurrentLinkedQueue<ConcurrentLinkedQueue<Pair<Observer, ResponseMessage>>> = ConcurrentLinkedQueue()
+    val queue_request: ConcurrentLinkedQueue<ConcurrentLinkedQueue<Pair<Observer, RequestMessage>>> = ConcurrentLinkedQueue()
 
     val grpc = Thread{
-        val serverConnector = ServerConnector()
+        val serverConnector = ServerConnector(queue_response, queue_request)
         val grpc_builder = GRpcBuilder(serverConnector)
     }
     grpc.start()
@@ -14,7 +21,7 @@ fun main() {
     ktor.start()
 
     val game_logic = Thread{
-        val game_logic_builder = ServerGameLogicBuilder()
+        val game_logic_builder = ServerGameLogicBuilder(queue_response, queue_request)
         game_logic_builder.Start()
     }
     game_logic.start()

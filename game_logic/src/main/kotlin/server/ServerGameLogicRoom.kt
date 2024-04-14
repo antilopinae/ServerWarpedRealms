@@ -1,40 +1,43 @@
 package server_logic.server
 
+import adapters.grpc.dao.RequestMessage
+import adapters.grpc.dao.ResponseMessage
+import adapters.grpc.server.dao.Observer
+import server.GameLogicThread
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.locks.ReentrantLock
 
-class ServerGameLogicRoom
+class ServerGameLogicRoom(
+    val queue_response: ConcurrentLinkedQueue<Pair<Observer, ResponseMessage>>,
+    val queue_request: ConcurrentLinkedQueue<Pair<Observer, RequestMessage>>
+)
 {
-    private val roomsPhysicLogic: ConcurrentLinkedQueue<ServerGameLogic> = ConcurrentLinkedQueue()
-
+//    private val roomsPhysicLogic: ConcurrentLinkedQueue<ServerGameLogic> = ConcurrentLinkedQueue()
     private val lockGameLogic = ReentrantLock().also { it.lock() }
-
-    private val threadGameLogic = Thread{
-        val serverGameLogic = ServerGameLogic()
-
-        while(lockGameLogic.isLocked){
-            //do some logic
-        }
-    }
+    private val serverGameLogic = ServerGameLogic()
+    private val threadsGameLogic: MutableList<GameLogicThread> = mutableListOf()
     fun StartRoom(){
         if(!lockGameLogic.isLocked) lockGameLogic.lock()
-        threadGameLogic.start()
+        createPhysicRoom().start()
     }
     fun StopRoom(){
-        roomsPhysicLogic.stream().forEach {
-            it.StopPhysic()
+        threadsGameLogic.stream().forEach {
+//            it.StopPhysic()
         }
         //count results
         // lock rooms
-        roomsPhysicLogic.stream().forEach {
-            it.CleanGameLogic()
+        threadsGameLogic.stream().forEach {
+//            it.CleanGameLogic()
         }
         //clean all
     }
-    private fun createPhysicRoom(){
+    private fun createPhysicRoom(): GameLogicThread{
+        val gameLogic = GameLogicThread(serverGameLogic, lockGameLogic, queue_response, queue_request)
+        threadsGameLogic.add(gameLogic)
+        return gameLogic
     }
     private fun stopPhysicRoom(){
         if(lockGameLogic.isLocked) lockGameLogic.unlock()
-        threadGameLogic.join()
+        threadsGameLogic.forEach {  it.join() }
     }
 }

@@ -418,7 +418,7 @@ class Output(
             writer.appendLine("    val size = ${processed_update.size}")
             for (i in 0..<processed_update.size) {
                 val system = processed_update.toList()[i].first
-                writer.appendLine("    private val system${i + 1} = ${system.simpleName}(this, factories) //${processed_update.toList()[i].second}")
+                writer.appendLine("    private val system${i + 1} : ${system.simpleName} by lazy { ${system.simpleName}(this, factories)} //${processed_update.toList()[i].second}")
             }
             writer.appendLine("\n    val systems: HashMap<KClass<*>, *> = hashMapOf(")
             for (i in 0..<processed_update.size) {

@@ -6,18 +6,17 @@ import adapters.grpc.server.GRpcServer
 import adapters.grpc.server.dao.Observer
 import java.util.concurrent.ConcurrentLinkedQueue
 
-class GRpcLayer {
-    val server = GRpcServer()
+class GRpcLayer(
+    val queue_response: ConcurrentLinkedQueue<ConcurrentLinkedQueue<Pair<Observer, ResponseMessage>>>,
+    val queue_request: ConcurrentLinkedQueue<ConcurrentLinkedQueue<Pair<Observer, RequestMessage>>>
+) {
     init {
-        server.start()
+        queue_request.add(ConcurrentLinkedQueue())
+        queue_response.add(ConcurrentLinkedQueue())
     }
+    val server = GRpcServer(queue_response.peek(), queue_request.peek()).also { it.start() }
+
     val connector = server.connector
-    fun sendResponses(clientPac: ConcurrentLinkedQueue<Pair<Observer, ResponseMessage>>){
-        connector.sendResponses(clientPac)
-    }
-    fun getRequests(): ConcurrentLinkedQueue<Pair<Observer, RequestMessage>> {
-        return connector.getRequests()
-    }
     fun stopConnection(){
         server.stopConnection()
     }

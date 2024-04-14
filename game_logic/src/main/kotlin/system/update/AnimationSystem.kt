@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import ktx.app.gdxError
 import ktx.collections.map
-import ktx.log.logger
 import warped.realms.component.AnimationComponent
 import warped.realms.component.AnimationComponent.Companion.NO_ANIMATION
 import warped.realms.component.ImageComponent
